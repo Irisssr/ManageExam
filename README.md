@@ -10,7 +10,8 @@ npm install 或者 cnpm i 或者 yarn install
 
 启动项目
 ```
-进入项目目录后
+进入项目
+cd mexam
 
 npm run serve
 ```
