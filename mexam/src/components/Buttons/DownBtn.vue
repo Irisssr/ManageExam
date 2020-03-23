@@ -1,13 +1,19 @@
 <template>
-    <div class="down-btn">
-        <a class="downExcel" :href="url">下载准考证模板</a>
+    <div class="down-btn" @click="setTemp">
+        <a class="downExcel" :href="url">下载准考证</a>
     </div>
 </template>
 
 <script>
 export default {
     props:{
-        url:{ type:String,default:null}
+        url:{ type:String,default:null},
+        examId:{ type:Number,default:null}
+    },
+    methods:{
+        setTemp(){
+            this.$emit('sendTemp',this.examId)
+        }
     }
 }
 </script>
@@ -22,6 +28,10 @@ export default {
 
         a{
             color: #fff;
+        }
+
+        &:hover{
+            cursor: pointer;
         }
     }
 </style>

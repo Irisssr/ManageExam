@@ -21,7 +21,7 @@
             </el-select>
             <el-button type="primary" style="margin:0 5px;" @click="handlePrint">设置</el-button>
         </div>
-        <h5>查询条件</h5>
+        <h5>下载准考证信息表</h5>
         <!-- 选择条件 -->
         <div class="handle-box">
             <!-- 选择考次 -->
@@ -32,8 +32,10 @@
                     :label="item.name"
                     :value="item.id"></el-option>
             </el-select>
-            <el-button type="primary" style="margin:0 5px;" @click="handleSearch">查询</el-button>
-            <el-button style="margin:0 5px;" @click="handleCancel" v-show="isUse">取消</el-button>
+            <!-- 下载准考证 -->
+            <div class="down-btn" @click="setTemp">
+                <a class="downExcel" :href="tempUrl">下载准考证</a>
+            </div>
         </div>
         <div class="handle-box">
             <!-- 导出准考证Excel -->
@@ -46,8 +48,6 @@
             <!-- 导入准考证信息Excel -->
             <excel-btn title="导入准考证信息Excel"
                 @setExcel="getExcel"></excel-btn>
-            <!-- 下载准考证模板 -->
-            <down-temp :url="tempUrl"></down-temp>
         </div>
 
         <el-table
@@ -55,18 +55,20 @@
             :data="tableData"
             border highlight-current-row
             style="width:100%;">
-            <el-table-column align="center" prop="" label=""></el-table-column>
-            <el-table-column align="center" prop="" label=""></el-table-column>
-            <el-table-column align="center" label="操作">
-                <template slot-scope="scope">
-                    <el-button size="small" type="success" @click="handleEdit(scope.row)">编辑状态</el-button>
+            <el-table-column align="center" prop="signId" label="报名ID"></el-table-column>
+            <el-table-column align="center" prop="" label="考生姓名"></el-table-column>
+            <el-table-column align="center" prop="" label="身份证号"></el-table-column>
+            <el-table-column align="center" prop="" label="考次名称"></el-table-column>
+            <el-table-column align="center" prop="admissionNumber" label="准考证号"></el-table-column>
+            <el-table-column align="center" prop="examAddr" label="考试地点"></el-table-column>
+            <el-table-column align="center" prop="roomNumber" label="考场号"></el-table-column>
+            <el-table-column align="center" prop="seatNumber" label="座位号"></el-table-column>
+            <el-table-column align="center" label="打印状态">
+                <template slot-scope="{row}">
+                    <el-tag :type="row.status | statusType">{{ row.status}}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column>
-                <template slot-scope="scope">
-                    <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
+            <el-table-column align="center" prop="description" label="备注"></el-table-column>
         </el-table>
 
         <!-- 底部导航栏 -->
@@ -84,7 +86,6 @@
 import ExcelBtn from '@/components/Buttons/UpExcelBtn.vue'
 import Pagination from '@/components/Pagination.vue'
 import DwExcelBtn from '@/components/Buttons/DwExcelBtn.vue'
-import DownTemp from '@/components/Buttons/DownBtn.vue'
 import baseurl from '@/axios/base.js'
 import XLSX from 'xlsx'
 
@@ -93,12 +94,20 @@ export default {
         Pagination,
         ExcelBtn,
         DwExcelBtn,
-        DownTemp
+    },
+    filters:{
+        statusType(type){
+            const typeMap={
+                '开启打印':'success',
+                '关闭打印':'info'
+            }
+            return typeMap[type];
+        }
     },
     data(){
         return{
-            tHeader:[],
-            filterVal:[],
+            tHeader:["报名ID","考生姓名","身份证号","考次名称","准考证号","考试地点","考场号","座位号","打印状态","备注"],
+            filterVal:["signId","","","","admissionNumber","examAddr","roomNumber","seatNumber","status"],
             printexamId:'',
             examId:'',
             printStatus:'',
@@ -122,17 +131,14 @@ export default {
         }
     },
     methods:{
-        handleSearch(){//查询
-            this.isUse=true;
-            this.getAdminssion();
-        },
-        handleCancel(){//取消
-            this.examId='';
-            this.isUse=false;
-            this.getAdminssion();
-        },
         handlePrint(){//设置打印状态
             let that=this;
+            if(!this.printexamId){
+                return that.$message.error('请先选择考次');
+            }
+            if(!this.printStatus){
+                return that.$message.error('请选择打印状态');
+            }
             this.$api.statusadmission({
                 exam_id:that.printexamId,
                 status: that.printStatus
@@ -141,16 +147,11 @@ export default {
                     that.printexamId='';
                     that.printStatus='';
                     that.$message.success('设置成功');
+                    that.getAdminssion();
                 }else{
                     that.$message.error('设置失败');
                 }
             })
-        },
-        handleEdit(){//编辑
-
-        },
-        handleDelete(){//删除
-
         },
         tempExcel(){
             this.$api.downtemplate().then(res => {
@@ -206,6 +207,14 @@ export default {
             this.query.pageIndex=index;
             this.getAdminssion();
         },
+        setTemp(){
+            if(!this.examId){
+                return this.$message.error('请先选择考次');
+            }
+            let token=sessionStorage.getItem('token');
+            this.tempUrl= baseurl.url+`/admin/admission/download/template/${this.examId}?Authorization=${token}`;
+            console.log(this.examId,token,this.tempUrl)
+        },
         getlistid(){//获取考次
             let that=this;
             this.$api.listid().then(res=>{
@@ -219,16 +228,14 @@ export default {
                 page_num:that.query.pageIndex,
                 page_size:that.query.pageSize
             }).then(res=>{
-                console.log(res)
                 let data = res.data.admissions;
                 that.tableData= data.list;
+                console.log(that.tableData)
                 that.query.totalMsg= data.total;
             })
         }
     },
     created(){
-        let token=sessionStorage.getItem('token');
-        this.tempUrl= baseurl.url+'/admin/admission/download/template?Authorization='+token;
         this.getAdminssion();
         this.getlistid();
     }
@@ -242,6 +249,21 @@ export default {
         }
         .testTitle{
             margin: 0 20px;
+        }
+    }
+    .down-btn{
+        box-sizing: border-box;
+        border-radius: 5px;
+        background: #45a1ff;
+        padding: 10px 5px;
+        margin: 0 5px;
+
+        a{
+            color: #fff;
+        }
+
+        &:hover{
+            cursor: pointer;
         }
     }
 </style>
