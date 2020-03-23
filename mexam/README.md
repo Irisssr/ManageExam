@@ -1,5 +1,10 @@
 # mexam
 
+## 进入项目
+```
+cd mexam
+```
+
 ## 安装包
 ```
 npm install
