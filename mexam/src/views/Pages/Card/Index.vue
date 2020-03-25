@@ -34,7 +34,7 @@
             </el-select>
             <!-- 下载准考证 -->
             <div class="down-btn" @click="setTemp">
-                <a class="downExcel" :href="tempUrl">下载准考证</a>
+                <a class="downExcel" :href="tempUrl">下载准考证信息编排表</a>
             </div>
         </div>
         <div class="handle-box">
@@ -213,7 +213,6 @@ export default {
             }
             let token=sessionStorage.getItem('token');
             this.tempUrl= baseurl.url+`/admin/admission/download/template/${this.examId}?Authorization=${token}`;
-            console.log(this.examId,token,this.tempUrl)
         },
         getlistid(){//获取考次
             let that=this;
@@ -230,7 +229,6 @@ export default {
             }).then(res=>{
                 let data = res.data.admissions;
                 that.tableData= data.list;
-                console.log(that.tableData)
                 that.query.totalMsg= data.total;
             })
         }

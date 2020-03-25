@@ -152,7 +152,6 @@ export default {
         },
         getEditDialog(val){//编辑
             this.dialogEditForm=val;
-            console.log(val)
         },
         handleEdit(info){
             this.dialogEditForm=true;

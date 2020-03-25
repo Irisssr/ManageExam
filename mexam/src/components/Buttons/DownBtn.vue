@@ -1,6 +1,6 @@
 <template>
     <div class="down-btn">
-        <a class="downExcel" :href="url">下载准考证</a>
+        <a class="downExcel" :href="url">{{ title}}</a>
     </div>
 </template>
 
@@ -8,6 +8,7 @@
 export default {
     props:{
         url:{ type:String,default:null},
+        title:{ type:String,default:null}
     }
 }
 </script>

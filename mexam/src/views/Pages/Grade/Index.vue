@@ -34,7 +34,8 @@
             <excel-btn title="导入考生成绩Excel"
                 @setExcel="getExcel"></excel-btn>
             <!-- 成绩下载模板 -->
-            <down-temp :url="tempUrl"></down-temp>
+            <down-temp :url="tempUrl" 
+                title="成绩上传模板下载"></down-temp>
         </div>
 
         <el-table
@@ -86,7 +87,7 @@ import ExcelBtn from '@/components/Buttons/UpExcelBtn.vue'
 import Pagination from '@/components/Pagination.vue'
 import DwExcelBtn from '@/components/Buttons/DwExcelBtn.vue'
 import EditGrade from './GradeFrom'
-import XLSX from 'xlsx'
+// import XLSX from 'xlsx'
 import DownTemp from '@/components/Buttons/DownBtn.vue'
 import baseurl from '@/axios/base.js'
 
@@ -140,7 +141,6 @@ export default {
             this.examId=id;
         },
         handleSearch(){
-            console.log(this.gradeStatus,this.examId,this.testNum)
             this.isUse=true;
             this.getGradeList();
         },
@@ -158,32 +158,30 @@ export default {
             const formData = new FormData();
             formData.append('file',file);
             this.$api.upgrade(formData).then(res=>{
-                console.log(res)
                 if(res.data.err_code === 101){
                     that.$message('数据重复');
                 }
             })
             this.getGradeList();
         },
-        readExcel(e){//表格导入事件
-            let that=this,file=e.target.files;
-            if(file.length<=0) return;
-            else if(!/\.(xls|xlsx)$/.test(file[0].name.toLowerCase())){
-                return that.$message.error('上传文件格式不正确,请上传正确格式的文件')
-            }
-            const reader = new FileReader();
-            reader.readAsBinaryString(file[0]);
-            reader.onload= function(ev){
-                const data= ev.target.result;
-                const workbook = XLSX.read(data,{
-                    type:'binary'
-                })
-                const wsname = workbook.SheetNames[0];
-                const ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);
-                console.log(ws)
-                // that.tableData=
-            }
-        },
+        // readExcel(e){
+        //     let that=this,file=e.target.files;
+        //     if(file.length<=0) return;
+        //     else if(!/\.(xls|xlsx)$/.test(file[0].name.toLowerCase())){
+        //         return that.$message.error('上传文件格式不正确,请上传正确格式的文件')
+        //     }
+        //     const reader = new FileReader();
+        //     reader.readAsBinaryString(file[0]);
+        //     reader.onload= function(ev){
+        //         const data= ev.target.result;
+        //         const workbook = XLSX.read(data,{
+        //             type:'binary'
+        //         })
+        //         const wsname = workbook.SheetNames[0];
+        //         const ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);
+        //         console.log(ws)
+        //     }
+        // },
         formData(data){
             const formMap={
                 '准考证号':'examId',
@@ -224,9 +222,12 @@ export default {
                 type:'warning'
             }).then(()=>{
                 that.$api.gradedel(scope.id).then(res=>{
-                    console.log(res);
-                    that.$message('删除失败');
-                    that.getSignList();
+                    if(res.err_code === 100){
+                        that.$message.success('删除成功');
+                        that.getSignList();
+                    }else{
+                        that.$message.error('删除失败');
+                    }
                 })
             }).catch(()=>{})
         },
@@ -239,7 +240,6 @@ export default {
                 pageNum:that.query.pageIndex,
                 pageSize:that.query.pageSize,
             }).then(res=>{
-                console.log(res)
                 if(res.err_code ===100){
                     let data=res.data.grades;
                     that.query.totalMsg=data.total;

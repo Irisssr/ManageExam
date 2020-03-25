@@ -54,9 +54,10 @@ export default {
                     that.$api.login({
                         account: that.ruleForm.username,
                         password: that.ruleForm.password,
-                        remeberMe: that.checked
+                        remeberMe: that.checked,
+                        role: 'admin'
                     }).then(res=>{
-                        if(res.err_code === 200){
+                        if(res.err_code === 100){
                             sessionStorage.setItem('token','Bearer '+res.data.token);
                             that.$router.push('/User');
                             that.$message('登录成功');               

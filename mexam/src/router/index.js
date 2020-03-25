@@ -24,11 +24,6 @@ const routes = [
     path:'/',
     component:()=>import('@/views/Layout/Main.vue'),
     children:[
-      // {
-      //   path:'Index',
-      //   meta:{ title:'系统首页'},
-      //   component:()=>import('@/views/Pages/Home/Index.vue')
-      // },
       {
         path:'User',
         meta:{ title:'用户管理'},

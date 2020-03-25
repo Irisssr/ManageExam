@@ -5,19 +5,7 @@
 </template>
 
 <script>
-import E from 'wangeditor'
 export default {
-    data(){
-        return{
-            editor:null
-        }
-    },
-    updated(){
-        console.log(this.$refs.editor)
-        this.editor=new E(this.$refs.editor)
-        this.editor.create();
-        console.log(this.editor)
-    }
 }
 </script>
 

@@ -44,16 +44,10 @@
             :dialogFormVisible="dialogAdd"
             @setDialog="getAddDialog"
             @updateData="update"></AddrFrom>
-        <!-- 编辑 -->
-        <!-- <Edit title="用户更新"
-            :oneData="oneData"
-            @setDialog="getEditDialog"
-            :dialogFormVisible="dialogEditForm"></Edit> -->
     </div>
 </template>
 
 <script>
-// import Edit from './editUser'
 import Pagination from '@/components/Pagination.vue';
 import AddrFrom from './AddrFrom'
 
@@ -61,7 +55,6 @@ export default {
     components:{
         Pagination,
         AddrFrom
-        // Edit
     },
     data(){
         return{
@@ -82,7 +75,6 @@ export default {
     methods:{
         getEditDialog(val){//编辑
             this.dialogEditForm=val;
-            console.log(val)
         },
         handleEdit(info){
             this.dialogEditForm=true;
